@@ -6,6 +6,7 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { apiPost } from "@/lib/api-client";
 import { useAuthStore } from "@/lib/store/auth-store";
 
@@ -25,8 +26,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <AppBar position="sticky" color="primary">
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            PWA Oropeza
+            <Link href="/dashboard" style={{ color: "inherit", textDecoration: "none" }}>
+              PWA Oropeza
+            </Link>
           </Typography>
+          <Button color="inherit" component={Link} href="/perfil">
+            Mi perfil
+          </Button>
           <Button color="inherit" onClick={handleLogout}>
             Cerrar sesion
           </Button>

@@ -47,3 +47,28 @@ export interface ApiError {
   mensaje: string;
   detalles?: string[];
 }
+
+
+// ====================== Setup/Administracion 2FA ======================
+
+export interface Totp2FASetupResponse {
+  issuer: string;
+  label: string;
+  otpauthUri: string;
+  qrImageDataUri: string;
+  scratchCodes: string[];
+}
+
+export interface Totp2FAActivarRequest {
+  codigo: string;
+}
+
+export interface Totp2FADesactivarRequest {
+  password: string;
+}
+
+export interface GenericResponse {
+  codigo: number;
+  mensaje: string;
+  detalles?: string[];
+}
