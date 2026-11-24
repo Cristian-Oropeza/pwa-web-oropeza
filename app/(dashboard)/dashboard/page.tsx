@@ -44,39 +44,43 @@ export default function DashboardHomePage() {
         </Grid>
 
         <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-          <Card variant="outlined" sx={{ height: "100%", display: "flex", flexDirection: "column", opacity: 0.6 }}>
+          <Card variant="outlined" sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
             <CardContent sx={{ flexGrow: 1 }}>
               <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 1 }}>
-                <HistoryIcon />
+                <HistoryIcon color="primary" />
                 <Typography variant="h6" fontWeight={600}>
                   Historial
                 </Typography>
               </Stack>
               <Typography variant="body2" color="text.secondary">
-                Tus compras aplicadas aparecen aqui. Se habilita en la siguiente fase.
+                Revisa tus compras aplicadas con su numero de autorizacion.
               </Typography>
             </CardContent>
             <CardActions>
-              <Button disabled>Proximamente</Button>
+              <Button component={Link} href="/dashboard/historial" variant="contained">
+                Ver historial
+              </Button>
             </CardActions>
           </Card>
         </Grid>
 
         <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-          <Card variant="outlined" sx={{ height: "100%", display: "flex", flexDirection: "column", opacity: 0.6 }}>
+          <Card variant="outlined" sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
             <CardContent sx={{ flexGrow: 1 }}>
               <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 1 }}>
-                <DevicesIcon />
+                <DevicesIcon color="primary" />
                 <Typography variant="h6" fontWeight={600}>
                   Sesiones activas
                 </Typography>
               </Stack>
               <Typography variant="body2" color="text.secondary">
-                Administra desde donde esta abierta tu cuenta. Se habilita en la siguiente fase.
+                Administra desde donde esta abierta tu cuenta y cierra las que no reconozcas.
               </Typography>
             </CardContent>
             <CardActions>
-              <Button disabled>Proximamente</Button>
+              <Button component={Link} href="/dashboard/sesiones" variant="contained">
+                Ver sesiones
+              </Button>
             </CardActions>
           </Card>
         </Grid>

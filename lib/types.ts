@@ -140,3 +140,92 @@ export interface CatalogoProducto {
   /** ISO-8601, puede ser null si nunca sincronizo. */
   fechaSincronizacion: string | null;
 }
+
+
+// ====================== Cuentas ======================
+
+export type EstatusCuenta = "ACTIVA" | "INACTIVA" | "BLOQUEADA" | "CANCELADA";
+
+export interface CuentaResponse {
+  id: number;
+  numeroCuenta: string;
+  clienteId: number;
+  saldo: string | number | null;
+  estatus: EstatusCuenta;
+  fechaApertura: string | null;
+}
+
+export interface CuentaConsultaRequest {
+  numeroCuenta?: string;
+  clienteId?: number;
+  estatus?: EstatusCuenta;
+  paginacion?: PaginacionRequest;
+}
+
+
+// ====================== Transacciones ======================
+
+export type EstadoTransaccion =
+  | "PENDIENTE"
+  | "EN_CONFIRMACION"
+  | "APLICADA"
+  | "RECHAZADA"
+  | "NO_ENVIADA";
+
+export interface TransaccionEjecutarRequest {
+  clienteId: number;
+  idempotencyKey: string;
+  numeroCuenta: string;
+  idServicio: string;
+  idProducto: string;
+  /** BigDecimal serializado: string o number. */
+  monto: string | number;
+  /** Solo para tipoFront=1 (recargas). 10 digitos o canjeable con #. */
+  telefono?: string;
+  /** Solo para tipoFront=2 (pagos). */
+  referencia?: string;
+}
+
+export interface TransaccionResponse {
+  id: number;
+  referenciaOperacion: string;
+  idempotencyKey?: string;
+  clienteId: number;
+  cuentaId: number;
+  idServicio: string;
+  idProducto: string;
+  monto: string | number;
+  moneda: string;
+  estado: EstadoTransaccion;
+  upc?: string | null;
+  codigoProveedor?: string | null;
+  textoProveedor?: string | null;
+  idTxProveedor?: string | null;
+  /** Positivo cuando APLICADA. */
+  numAutorizacion?: number | null;
+  fechaCreacion?: string | null;
+  fechaEnvioProveedor?: string | null;
+  fechaConfirmacion?: string | null;
+}
+
+export interface TransaccionConsultaRequest {
+  referenciaOperacion: string;
+}
+
+export interface MisComprasRequest {
+  desde?: string;
+  hasta?: string;
+  paginacion?: PaginacionRequest;
+}
+
+export interface MiCompraResponse {
+  id: number;
+  referenciaOperacion: string;
+  idServicio: string;
+  idProducto: string;
+  telefono: string | null;
+  monto: string | number;
+  moneda: string;
+  numAutorizacion: number | null;
+  fechaConfirmacion: string | null;
+}

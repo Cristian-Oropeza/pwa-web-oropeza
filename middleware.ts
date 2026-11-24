@@ -42,6 +42,6 @@ export function middleware(req: NextRequest) {
 // Excluye rutas internas, estaticos, y el proxy (que maneja sus propias cookies)
 export const config = {
   matcher: [
-    "/((?!api/proxy|_next/static|_next/image|favicon.ico|manifest.json).*)",
+    "/((?!api/proxy|_next/static|_next/image|favicon.ico|manifest.json|sw.js|icons/).*)",
   ],
 };
