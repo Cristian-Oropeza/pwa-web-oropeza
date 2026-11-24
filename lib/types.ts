@@ -72,3 +72,71 @@ export interface GenericResponse {
   mensaje: string;
   detalles?: string[];
 }
+
+
+export interface Totp2FAStatusResponse {
+  activo: boolean;
+}
+
+
+// ====================== Paginacion generica ======================
+
+/**
+ * Paginacion estandar que acepta el backend (PaginacionRequest).
+ * sort: "campo,direccion" ej "descripcion,asc".
+ */
+export interface PaginacionRequest {
+  page?: number;
+  size?: number;
+  sort?: string;
+}
+
+/**
+ * Subset del Page<T> que serializa Spring Data. Se omiten campos
+ * internos (pageable, sort) que la UI no consume.
+ */
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  /** Numero de pagina actual, indexado en cero. */
+  number: number;
+  size: number;
+  first: boolean;
+  last: boolean;
+  empty: boolean;
+  numberOfElements: number;
+}
+
+
+// ====================== Catalogo ======================
+
+export interface CatalogoConsultarRequest {
+  idServicio?: string;
+  descripcion?: string;
+  incluirInactivos?: boolean;
+  paginacion?: PaginacionRequest;
+}
+
+/**
+ * Shape de un producto del catalogo (espeja CatalogoProductoResponse).
+ * Los montos llegan como string (BigDecimal serializado) o number,
+ * siempre los normalizamos a string en la UI para evitar perdida de
+ * precision al formatear.
+ */
+export interface CatalogoProducto {
+  id: number;
+  idServicio: string;
+  idProducto: string;
+  descripcion: string;
+  /** 1 = recarga a precio fijo, 2 = pago con referencia (monto abierto). */
+  tipoFront: number;
+  precio: string | number | null;
+  montoMin: string | number | null;
+  montoMax: string | number | null;
+  moneda: string;
+  activo: boolean;
+  imagenUrl: string | null;
+  /** ISO-8601, puede ser null si nunca sincronizo. */
+  fechaSincronizacion: string | null;
+}

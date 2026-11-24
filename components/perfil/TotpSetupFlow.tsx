@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
@@ -11,21 +11,20 @@ import CircularProgress from "@mui/material/CircularProgress";
 import LockIcon from "@mui/icons-material/Lock";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 import { apiPost } from "@/lib/api-client";
-import { Totp2FASetupResponse } from "@/lib/types";
+import { Totp2FASetupResponse, Totp2FAStatusResponse } from "@/lib/types";
 import ScratchCodesPanel from "./ScratchCodesPanel";
 import TotpActivateForm from "./TotpActivateForm";
 import TotpDeactivateDialog from "./TotpDeactivateDialog";
 
 /**
- * Orquesta los 3 estados posibles del 2FA desde la UI:
- *  - IDLE: no se ha iniciado setup (muestra boton "Configurar" + "Ya tengo 2FA")
- *  - SETUP: setup iniciado, muestra QR + scratch codes + input de confirmacion
- *  - ACTIVO: confirmado, muestra estado + boton de desactivar
- *
- * El backend no expone un endpoint de "status", asi que la UI empieza en IDLE
- * y se adapta segun la respuesta (409 TOTP_YA_ACTIVADO = ya esta activo).
+ * Orquesta los estados posibles del 2FA:
+ *  - CHECKING: consultando /auth/2fa/status al montar
+ *  - IDLE: no esta activo (muestra "Configurar 2FA")
+ *  - SETUP: setup iniciado (QR + scratch + input de codigo)
+ *  - ACTIVO: ya esta activado (muestra "Desactivar 2FA")
  */
 type State =
+  | { kind: "checking" }
   | { kind: "idle" }
   | { kind: "loading" }
   | { kind: "setup"; data: Totp2FASetupResponse }
@@ -33,14 +32,31 @@ type State =
   | { kind: "error"; mensaje: string };
 
 export default function TotpSetupFlow() {
-  const [state, setState] = useState<State>({ kind: "idle" });
+  const [state, setState] = useState<State>({ kind: "checking" });
   const [deactivateOpen, setDeactivateOpen] = useState(false);
+
+  // Al montar: consultar si el 2FA ya esta activo
+  useEffect(() => {
+    let cancelado = false;
+    (async () => {
+      const res = await apiPost<Totp2FAStatusResponse>("/api/v1/auth/2fa/status");
+      if (cancelado) return;
+      if (!res.ok) {
+        // Si la consulta falla, caemos a idle para que el user pueda intentar
+        setState({ kind: "idle" });
+        return;
+      }
+      setState(res.data?.activo ? { kind: "activo" } : { kind: "idle" });
+    })();
+    return () => {
+      cancelado = true;
+    };
+  }, []);
 
   async function handleStartSetup() {
     setState({ kind: "loading" });
     const res = await apiPost<Totp2FASetupResponse>("/api/v1/auth/2fa/setup");
     if (!res.ok) {
-      // Si el backend dice TOTP_YA_ACTIVADO, el usuario ya tiene 2FA; ajustamos UI.
       if (res.status === 409) {
         setState({ kind: "activo", mensaje: "El 2FA ya estaba activado en tu cuenta." });
         return;
@@ -55,7 +71,11 @@ export default function TotpSetupFlow() {
   }
 
   function handleActivated() {
-    setState({ kind: "activo", mensaje: "2FA activado correctamente. La proxima vez que inicies sesion te pedira el codigo." });
+    setState({
+      kind: "activo",
+      mensaje:
+        "2FA activado correctamente. La proxima vez que inicies sesion te pedira el codigo.",
+    });
   }
 
   function handleDeactivated() {
@@ -63,13 +83,17 @@ export default function TotpSetupFlow() {
     setState({ kind: "idle" });
   }
 
-  if (state.kind === "loading") {
+  if (state.kind === "checking" || state.kind === "loading") {
     return (
       <Card>
         <CardContent>
           <Stack direction="row" spacing={2} alignItems="center">
             <CircularProgress size={24} />
-            <Typography>Generando QR y codigos de respaldo...</Typography>
+            <Typography>
+              {state.kind === "checking"
+                ? "Consultando estado del 2FA..."
+                : "Generando QR y codigos de respaldo..."}
+            </Typography>
           </Stack>
         </CardContent>
       </Card>
@@ -164,7 +188,7 @@ export default function TotpSetupFlow() {
       <Card>
         <CardContent>
           <Stack spacing={3}>
-            <Alert severity="success">{state.mensaje}</Alert>
+            {state.mensaje && <Alert severity="success">{state.mensaje}</Alert>}
             <Stack direction="row" spacing={2} alignItems="center">
               <LockIcon color="success" />
               <Typography variant="h6">2FA activado</Typography>

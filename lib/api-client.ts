@@ -34,13 +34,14 @@ export async function apiPost<T>(
     const parsed = text ? safeJson(text) : undefined;
 
     if (!res.ok) {
+      const fallback = {
+        codigo: res.status,
+        mensaje: res.statusText || "Error de comunicacion",
+      };
       return {
         ok: false,
         status: res.status,
-        error: parsed ?? {
-          codigo: res.status,
-          mensaje: res.statusText || "Error de comunicacion",
-        },
+        error: (parsed as ApiResult<never>["error"]) ?? fallback,
       };
     }
     return { ok: true, status: res.status, data: parsed as T };

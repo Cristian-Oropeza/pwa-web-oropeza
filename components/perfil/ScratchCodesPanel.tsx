@@ -6,7 +6,7 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
-import Grid from "@mui/material/Grid";
+import Grid from "@mui/material/Grid2";
 import DownloadIcon from "@mui/icons-material/Download";
 import { downloadText } from "@/lib/download";
 
